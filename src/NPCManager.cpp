@@ -514,10 +514,12 @@ void NPCManager::handleWarp(CNSocket* sock, int32_t warpId) {
         uint64_t instanceID = Warps[warpId].instanceID;
 
         // if warp requires you to be on a mission, it's gotta be a unique instance
+        /* BYPASSED FOR LAIR GRUNTWORK
         if (Warps[warpId].limitTaskID != 0 || instanceID == 14) { // 14 is a special case for the Time Lab
             instanceID += ((uint64_t)plr->iIDGroup << 32); // upper 32 bits are leader ID
             ChunkManager::createInstance(instanceID);
         }
+        */
 
         if (plr->iID == plr->iIDGroup && plr->groupCnt == 1)
             PlayerManager::sendPlayerTo(sock, Warps[warpId].x, Warps[warpId].y, Warps[warpId].z, instanceID);
