@@ -9,8 +9,11 @@
 #include "MissionManager.hpp"
 #include "ChunkManager.hpp"
 
+#include <cmath>
+#include <algorithm>
 #include <sstream>
 #include <iterator>
+#include <limits.h>
 
 std::map<std::string, ChatCommand> ChatManager::commands;
 
@@ -712,17 +715,19 @@ void lairUnlock(std::string full, std::vector<std::string>& args, CNSocket* sock
     Chunk* chnk = ChunkManager::chunks[plr->chunkPos];
     int taskID = -1;
     int missionID = -1;
-    int found = 0;
+    int distance = INT_MAX;
+
     for (int32_t id : chnk->NPCs) {
         if (NPCManager::NPCs.find(id) == NPCManager::NPCs.end())
             continue;
 
         BaseNPC* npc = NPCManager::NPCs[id];
         for (auto it = NPCManager::Warps.begin(); it != NPCManager::Warps.end(); it++) {
-            if ((*it).second.npcID == npc->appearanceData.iNPCType) {
+            if ((*it).second.npcID == npc->appearanceData.iNPCType
+                && std::hypot(plr->x - npc->appearanceData.iX, plr->y - npc->appearanceData.iY) < distance) {
                 taskID = (*it).second.limitTaskID;
                 missionID = MissionManager::Tasks[taskID]->task["m_iHMissionID"];
-                found++;
+                distance = std::hypot(plr->x - npc->appearanceData.iX, plr->y - npc->appearanceData.iY);
                 break;
             }
         }
@@ -730,11 +735,6 @@ void lairUnlock(std::string full, std::vector<std::string>& args, CNSocket* sock
 
     if (missionID == -1 || taskID == -1) {
         ChatManager::sendServerMessage(sock, "You are NOT standing near a lair portal; move around and try again!");
-        return;
-    }
-
-    if (found > 1) {
-        ChatManager::sendServerMessage(sock, "More than one lair found; decrease chunk size and try again!");
         return;
     }
 
