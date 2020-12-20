@@ -16,6 +16,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 #if defined(__MINGW32__) && !defined(_GLIBCXX_HAS_GTHREADS)
     #include "mingw/mingw.mutex.h"
@@ -136,7 +137,15 @@ void Database::checkMetaTable() {
         exit(1);
     }
 
-    while (dbVersion != DATABASE_VERSION){
+    try {
+        std::cout << "[INFO] Backing up database" << std::endl;
+        std::filesystem::copy_file(settings::DBPATH, settings::DBPATH + ".old");
+    } catch (std::filesystem::filesystem_error& e) {
+        std::cout << "[FATAL] Failed to backup database before migration" << std::endl;
+        exit(1);
+    }
+
+    while (dbVersion != DATABASE_VERSION) {
         // db migrations
         std::cout << "[INFO] Migrating Database to Version " << dbVersion + 1 << std::endl;
 
@@ -158,7 +167,7 @@ void Database::checkMetaTable() {
         }
 
         dbVersion++;
-        std::cout << "[INFO] Successfull Database Migration to Version " << dbVersion << std::endl;
+        std::cout << "[INFO] Successful Database Migration to Version " << dbVersion << std::endl;
     }    
 }
 
@@ -226,14 +235,12 @@ void Database::createTables() {
     std::string read = stream.str();
     const char* sql = read.c_str();
 
-    dbCrit.lock();
     char* errMsg = 0;
     int rc = sqlite3_exec(db, sql, NULL, NULL, &errMsg);
     if (rc != SQLITE_OK) {
         std::cout << "[FATAL] Database failed to create tables: " << errMsg << std::endl;
         exit(1);
     }
-    dbCrit.unlock();
 }
 
 int Database::getTableSize(std::string tableName) {
