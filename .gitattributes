@@ -1,1 +1,5 @@
 vendor/* linguist-vendored
+
+# Always checkout source with LF line endings
+*.c text eol=lf
+*.h text eol=lf
