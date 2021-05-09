@@ -88,10 +88,24 @@ static int plr_getChatted(lua_State *state) {
     return 1;
 }
 
+static int plr_getMoved(lua_State* state) {
+    Player* plr = grabPlayer(state, 1);
+
+    if (plr == NULL)
+        return 0;
+
+    if (plr->onMove == nullptr)
+        plr->onMove = new lEvent();
+
+    LuaManager::Event::push(state, plr->onMove);
+    return 1;
+}
+
 static const luaL_Reg plr_getters[] = {
     {"name", plr_getName},
     {"instance", plr_getInstance},
     {"onChat", plr_getChatted},
+    {"onMove", plr_getMoved},
     {0, 0}
 };
 

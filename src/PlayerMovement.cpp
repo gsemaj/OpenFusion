@@ -47,6 +47,10 @@ static void movePlayer(CNSocket* sock, CNPacketData* data) {
         Transport::lerp(&queue, from, to, NPC_DEFAULT_SPEED * 1.5); // little faster than typical
         Transport::NPCQueues[follower->appearanceData.iNPC_ID] = queue;
     }
+
+    // if the player has an onMove Lua event registered, call it
+    if (plr->onMove != nullptr)
+        plr->onMove->call(moveData->iAngle);
 }
 
 static void stopPlayer(CNSocket* sock, CNPacketData* data) {

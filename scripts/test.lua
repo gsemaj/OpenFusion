@@ -2,6 +2,14 @@ print("Hello wtf!")
 
 function onJoin(plr)
     print(plr.type .. " " .. plr.name .. " joined from LUA!!")
+
+    local waifu = NPC.new(plr.x, plr.y, plr.z, 714)
+    plr.onMove:listen(function(angle)
+    	local dist = 500
+    	local ang = math.rad(angle)
+    	waifu:moveTo(plr.x - dist * math.cos(ang), plr.y - dist * math.sin(ang), plr.z)
+    end)
+
     plr.onChat:listen(function(msg)
         print(plr.name .. " said : \'" .. msg .. "\'")
 

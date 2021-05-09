@@ -91,12 +91,15 @@ struct Player : public Entity {
 
     // lua events
     lEvent *onChat = nullptr;
+    lEvent* onMove = nullptr;
 
     Player() { type = EntityType::PLAYER; }
     ~Player() {
         // if an event was registered, free it
         if (onChat != nullptr)
             delete onChat;
+        if (onMove != nullptr)
+            delete onMove;
     }
 
     virtual void enterIntoViewOf(CNSocket *sock) override;
